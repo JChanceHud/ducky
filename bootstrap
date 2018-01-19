@@ -1,0 +1,10 @@
+#! /bin/sh
+
+set -e
+
+docker pull ethereum/client-go:latest
+
+docker run --rm -v "$(pwd)/genesis.json:/root/genesis.json" -v "$(pwd)/data/miner:/root/.ethereum" ethereum/client-go init /root/genesis.json
+docker run --rm -v "$(pwd)/genesis.json:/root/genesis.json" -v "$(pwd)/data/rpc:/root/.ethereum" ethereum/client-go init /root/genesis.json
+
+echo "\nInitialized and ready for use.\n\n"

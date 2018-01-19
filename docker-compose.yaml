@@ -2,32 +2,56 @@ version: "3.3"
 services:
   miner:
     image: ethereum/client-go:latest
-    ports:
-      - "30303:30303"
+    # ports:
+      # - "30303:30303"
+    secrets:
+      - mining_password
+      - mining_address
     volumes:
       - "./data/miner:/root/.ethereum"
-      - "./data/miner/p:/root/password"
-      - "/private/etc/localtime:/etc/localtime:ro"
-    command: ["--networkid", "10011799107121", "--mine", "--unlock", "ab3db167c072483d1e6cb8f22ac9e0ac520b4fcc", "--password", "/root/password", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
+    command: ["--networkid", "10011799107121", "--mine", "--unlock", "0", "--password", "/run/secrets/mining_password", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
   rpc:
     image: ethereum/client-go:latest
     ports:
       - "8545:8545"
+      - "30303:30303"
     volumes:
       - "./data/rpc:/root/.ethereum"
-      - "/private/etc/localtime:/etc/localtime:ro"
-    command: ["--networkid", "10011799107121", "--rpc", "--rpcaddr", "0.0.0.0", "--rpccorsdomain", "null", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
-  netstats:
-    build: eth-netstats
-    restart: on-failure
-    volumes:
-      - "/private/etc/localtime:/etc/localtime:ro"
+      # - "/private/etc/localtime:/etc/localtime:ro"
+    networks:
+      - netstats
+    command: ["--networkid", "10011799107121", "--rpc", "--rpcaddr", "0.0.0.0", "--rpccorsdomain", "*", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
+  eth-netstats:
+    image: jchancehud/eth-netstats:latest
+    restart: always
+    depends_on:
+      - net-intelligence-api
+    # volumes:
+    #   - "/private/etc/localtime:/etc/localtime:ro"
     environment:
       - WS_SECRET=eth-net-stats-secret
     ports:
       - "3000:3000"
+    networks:
+      - netstats
   net-intelligence-api:
-    build: eth-net-intelligence-api
-    volumes:
-      - "/private/etc/localtime:/etc/localtime:ro"
-    restart: on-failure
+    image: jchancehud/eth-net-intelligence-api:latest
+    depends_on:
+      - rpc
+    environment:
+      RPC_HOST: rpc
+      WS_SERVER: ws://eth-netstats:3000
+      WS_SECRET: eth-net-stats-secret
+      VERBOSITY: 3
+    networks:
+      - netstats
+    # volumes:
+    #   - "/private/etc/localtime:/etc/localtime:ro"
+    restart: always
+networks:
+  netstats:
+secrets:
+  mining_password:
+    external: true
+  mining_address:
+    external: true

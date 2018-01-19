@@ -1,0 +1,7 @@
+#! /bin/sh
+
+docker build eth-netstats -t jchancehud/eth-netstats:latest
+docker push jchancehud/eth-netstats:latest
+
+docker build eth-net-intelligence-api -t jchancehud/eth-net-intelligence-api
+docker push jchancehud/eth-net-intelligence-api
