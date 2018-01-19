@@ -2,6 +2,7 @@ version: "3.3"
 services:
   miner:
     image: ethereum/client-go:latest
+    restart: always
     secrets:
       - mining_password
       - mining_address
@@ -12,6 +13,7 @@ services:
     command: ["--networkid", "10011799107121", "--rpc", "--rpcaddr", "0.0.0.0", "--mine", "--unlock", "0", "--password", "/run/secrets/mining_password", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
   rpc:
     image: ethereum/client-go:latest
+    restart: always
     ports:
       - "8545:8545"
       - "30303:30303"
@@ -35,7 +37,6 @@ services:
   net-intelligence-api:
     image: jchancehud/eth-net-intelligence-api:latest
     depends_on:
-      - rpc
       - miner
     environment:
       RPC_HOST: miner
