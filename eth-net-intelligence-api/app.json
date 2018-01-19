@@ -1,0 +1,13 @@
+{
+  "env": {
+    "NODE_ENV"        : "dev",
+    "RPC_HOST"        : "0.0.0.0",
+    "RPC_PORT"        : "8545",
+    "LISTENING_PORT"  : "30303",
+    "INSTANCE_NAME"   : "",
+    "CONTACT_DETAILS" : "",
+    "WS_SERVER"       : "wss://0.0.0.0:3000",
+    "WS_SECRET"       : "eth-net-stats-secret",
+    "VERBOSITY"       : 2
+  }
+}
