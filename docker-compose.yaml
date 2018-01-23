@@ -3,14 +3,17 @@ services:
   miner:
     image: ethereum/client-go:latest
     restart: always
-    secrets:
-      - mining_password
-      - mining_address
+    deploy:
+      replicas: 2
+      restart_policy: on-failure
+    resources:
+      limits:
+        cpus: "0.5"
     networks:
       - netstats
-    volumes:
-      - "./data/miner:/root/.ethereum"
-    command: ["--networkid", "10011799107121", "--rpc", "--rpcaddr", "0.0.0.0", "--mine", "--unlock", "0", "--password", "/run/secrets/mining_password", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
+    # volumes:
+    #   - "./data/miner:/root/.ethereum"
+    command: ["--networkid", "10011799107121", "--rpc", "--rpcaddr", "0.0.0.0", "--mine", "--unlock", "185abc5328a7b7fcc7e148ee6d82a746126beeb3", "--password", "/dev/null", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
   rpc:
     image: ethereum/client-go:latest
     restart: always
@@ -19,7 +22,6 @@ services:
       - "30303:30303"
     volumes:
       - "./data/rpc:/root/.ethereum"
-      # - "/private/etc/localtime:/etc/localtime:ro"
     command: ["--networkid", "10011799107121", "--rpc", "--rpcaddr", "0.0.0.0", "--rpccorsdomain", "*", "--bootnodes", "enode://612bf8a78e199b5642206a7ffd132d3de95c54111209bf519c716454f2e3ab8bf9ac48872acae8f16ca32a99df77458f4bc72a81baed819b9dcc07f29f70fbae@138.197.51.245:30303"]
   net-intelligence-api:
     image: jchancehud/eth-net-intelligence-api:latest
@@ -37,8 +39,3 @@ services:
     restart: always
 networks:
   netstats:
-secrets:
-  mining_password:
-    external: true
-  mining_address:
-    external: true
